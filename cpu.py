@@ -87,9 +87,14 @@ class Cpu:
                     # Load a value from one register to another
                     rd = self._decoded.rd
                     ra = self._decoded.ra
-                    self._regs.execute(rd=rd, data=ra, write_enable = True)
-                case "STORE":
-                    pass  # complete implementation here
+                    offset = self._decoded.imm
+                    data = self._d_mem.read(ra + offset)
+                    self._regs.execute(rd=rd, data=data, write_enable = True)
+                case "STORE": #use d_mem
+                    ra = self._decoded.ra
+                    rb = self._decoded.rb
+                    offset = self._decoded.imm
+                    data = self._regs.execute(ra=ra)
                 case "ADDI":
                     pass  # complete implementation here
                 case "ADD":
