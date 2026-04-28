@@ -84,19 +84,28 @@ class Cpu:
                     data = upper | lower
                     self._regs.execute(rd=rd, data=data, write_enable=True)
                 case "LOAD":
-                    # Load a value from one register to another
+                    # Load a value from memory to a register 
                     rd = self._decoded.rd
                     ra = self._decoded.ra
                     offset = self._decoded.imm
-                    data = self._d_mem.read(ra + offset)
+                    data = self._d_mem.read(ra + offset) #TODO: This is incorrect - must update based on Clayton's email
                     self._regs.execute(rd=rd, data=data, write_enable = True)
                 case "STORE": #use d_mem
+                    # Store a value from ra to rb + offset in d_MEM
                     ra = self._decoded.ra
                     rb = self._decoded.rb
                     offset = self._decoded.imm
-                    data = self._regs.execute(ra=ra)
+                    addr = self._regs.execute(ra=rb) + offset
+                    data, _ = self._regs.execute(ra=ra)
+                    self._d_mem.write(addr=addr, value=data) #TODO: figure out if this should be on or off the stack.
                 case "ADDI":
-                    pass  # complete implementation here
+                    self._alu.set_op("ADD")
+                    ra = self._decoded.ra
+                    rd = self._decoded.rd
+                    op_b = self._decoded.imm
+                    op_a, _ = self._regs.execute(ra=ra)
+                    result = self._alu.execute(op_a, op_b)
+                    self._regs.execute(rd=rd, data = result, write_enable=True)
                 case "ADD":
                     pass  # complete implementation here
                 case "SUB":
