@@ -71,7 +71,10 @@ class Cpu:
             # execute...
             match self._decoded.mnem:
                 case "LOADI":
-                    pass  # complete implementation here
+                    # Load an immediate value into rd (destinitation register)
+                    rd = self._decoded.rd
+                    imm = self._decoded.imm            
+                    self._regs.execute(rd = rd, data = imm, write_enable = True)
                 case "LUI":
                     # Load upper immediate (shifted left by 8 bits)
                     rd = self._decoded.rd
@@ -81,7 +84,10 @@ class Cpu:
                     data = upper | lower
                     self._regs.execute(rd=rd, data=data, write_enable=True)
                 case "LOAD":
-                    pass  # complete implementation here
+                    # Load a value from one register to another
+                    rd = self._decoded.rd
+                    ra = self._decoded.ra
+                    self._regs.execute(rd=rd, data=ra, write_enable = True)
                 case "STORE":
                     pass  # complete implementation here
                 case "ADDI":
