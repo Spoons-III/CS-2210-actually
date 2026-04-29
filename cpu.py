@@ -5,7 +5,7 @@ A toy 16-bit Harvard architecture CPU.
 CS 2210 Computer Organization
 Clayton Cafiero <cbcafier@uvm.edu>
 
-STARTER CODE - REPLACE THIS LINE WITH YOUR NAME HERE
+Raine Geary and Lee Ericson
 """
 
 from alu import Alu
@@ -74,7 +74,7 @@ class Cpu:
                     # Load an immediate value into rd (destinitation register)
                     rd = self._decoded.rd
                     imm = self._decoded.imm            
-                    self._regs.execute(rd = rd, data = imm, write_enable = True)
+                    self._regs.execute(rd=rd, data=imm, write_enable=True)
                 case "LUI":
                     # Load upper immediate (shifted left by 8 bits)
                     rd = self._decoded.rd
@@ -86,18 +86,18 @@ class Cpu:
                 case "LOAD":
                     # Load a value from memory to a register 
                     rd = self._decoded.rd
-                    ra = self._decoded.ra
-                    offset = self._decoded.imm
-                    data = self._d_mem.read(ra + offset) #TODO: This is incorrect - must update based on Clayton's email
+                    addr = self._regs.execute(ra=self._decoded.ra)
+                    offset = self.sext(value=self._decoded.imm)
+                    data = self._d_mem.read(ra + offset) 
                     self._regs.execute(rd=rd, data=data, write_enable = True)
                 case "STORE": #use d_mem
                     # Store a value from ra to rb + offset in d_MEM
                     ra = self._decoded.ra
                     rb = self._decoded.rb
-                    offset = self._decoded.imm
+                    offset = self.sext(value = self._decoded.imm)
                     addr = self._regs.execute(ra=rb) + offset
                     data, _ = self._regs.execute(ra=ra)
-                    self._d_mem.write(addr=addr, value=data) #TODO: figure out if this should be on or off the stack.
+                    self._d_mem.write(addr=addr, value=data) 
                 case "ADDI":
                     self._alu.set_op("ADD")
                     ra = self._decoded.ra
@@ -107,20 +107,60 @@ class Cpu:
                     result = self._alu.execute(op_a, op_b)
                     self._regs.execute(rd=rd, data = result, write_enable=True)
                 case "ADD":
-                    pass  # complete implementation here
+                    self._alu.set_op("ADD")
+                    ra = self._decoded.ra
+                    rb = self._decoded.rb
+                    rd = self._decoded.rd   #destinitaion
+                    op_a, op_b = self._regs.execute(ra=ra, rb=rb)
+                    result = self._alu.execute(op_a, op_b)
+                    self.regs.execute(rd=rd, data=result, write_enable=True)
                 case "SUB":
-                    pass  # complete implementation here
+                    self._alu.set_op("SUB")
+
+                    ra = self._decoded.ra
+                    rb = self._decoded.rb
+                    rd = self._decoded.rd
+
+                    op_a , op_b = self._regs.execute(ra=ra, rb=rb) 
+                    result = self._alu.execute(op_a,op_b)
+                    self._regs.execute(rd=rd, data=result, write_enable=True)
                 case "AND":
-                    pass  # complete implementation here
+                    self._alu.set_op("AND")
+
+                    ra = self._decoded.ra
+                    rb = self._decoded.rb
+                    rd = self._decoded.rd
+
+                    op_a, op_b = self._regs.execute(ra=ra, rb=rb)
+                    result = self._alu.execute(op_a, op_b)
+                    self._regs.execute(rd=rd, data=result, write_enable=True)
                 case "OR":
-                    pass  # complete implementation here
+                    self._alu.set_op("OR")
+
+                    ra = self._decoded.ra
+                    rb = self._decoded.rb
+                    rd = self._decoded.rd
+
+                    op_a, op_b = self._regs.execute(ra=ra, rb=rb)
+                    result = self._alu.execute(op_a, op_b)
+                    self._regs.execute(rd=rd, data=result, write_enable=True)
                 case "XOR":
-                    pass  # complete implementation here
+                    self._alu.set_op("XOR")
+                    
+                    ra = self._decoded.ra
+                    rb = self._decoded.rb
+                    rd = self._decoded.rd
+
+                    op_a, op_b = self._regs.execute(ra=ra, rb=rb)
+                    result = self._alu.execute(op_a, op_b)
+                    self._regs.execute(rd=rd, data=result, write_enable=True)
                 case "SHFT":
                     self._alu.set_op("SHFT")
+
                     rd = self._decoded.rd
                     ra = self._decoded.ra
                     rb = self._decoded.rb
+                    
                     op_a, op_b = self._regs.execute(ra=ra, rb=rb)
                     result = self._alu.execute(op_a, op_b)
                     self._regs.execute(rd=rd, data=result, write_enable=True)
@@ -168,7 +208,12 @@ class Cpu:
         self._decoded = Instruction(raw=self._ir)
 
     def _fetch(self):
-        pass  # complete implementation here
+        # Use address in program counter (PC) to fetch next instruction
+        next_instruction = self._i_mem.read(addr=self._pc)
+        # Store instruction in instruction register
+        self._ir = next_instruction
+        # increment the program counter.
+        self._pc += 1
 
     def load_program(self, prog):
         self._i_mem.load_program(prog)

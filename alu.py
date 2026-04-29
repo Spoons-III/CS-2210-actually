@@ -84,17 +84,15 @@ class Alu:
             case 0b000:
                 self._op = "ADD"
             case 0b001:
-                self._op = "SUB"  # replace pass with correct assignment
+                self._op = "SUB"  
             case 0b010:
-                self._op = "AND"  # replace pass with correct assignment
+                self._op = "AND"  
             case 0b011:
-                self._op = "OR"  # replace pass with correct assignment
+                self._op = "OR"  
             case 0b101:
-                self._op = "XOR"  # replace pass with correct assignment
+                self._op = "XOR"  
             case 0b100:
                 self._op = "SHFT"
-            # Following the pattern above, create a case and
-            # assignment for XOR
             case _:
                 raise ValueError("Invalid control signal")
         # Return value is for testing.
