@@ -34,7 +34,7 @@ class Memory:
         # If not, raise `TypeError`. If OK, then set
         # `_write_enable` accordingly. Replace `pass` below.
         if (isinstance(b, bool)):
-            self._write_enable = True
+            self._write_enable = b
         else:
             raise TypeError
 

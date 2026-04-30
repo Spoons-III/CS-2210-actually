@@ -73,7 +73,7 @@ class Cpu:
                 case "LOADI":
                     # Load an immediate value into rd (destinitation register)
                     rd = self._decoded.rd
-                    imm = self._decoded.imm            
+                    imm = self.sext(self._decoded.imm, 8)
                     self._regs.execute(rd=rd, data=imm, write_enable=True)
                 case "LUI":
                     # Load upper immediate (shifted left by 8 bits)
@@ -86,23 +86,28 @@ class Cpu:
                 case "LOAD":
                     # Load a value from memory to a register 
                     rd = self._decoded.rd
-                    addr = self._regs.execute(ra=self._decoded.ra)
-                    offset = self.sext(value=self._decoded.imm)
-                    data = self._d_mem.read(ra + offset) 
+                    addr, _ = self._regs.execute(ra=self._decoded.ra)
+                    offset = self.sext(value=self._decoded.addr, bits=6) 
+                    data = self._d_mem.read(addr + offset) 
                     self._regs.execute(rd=rd, data=data, write_enable = True)
                 case "STORE": #use d_mem
                     # Store a value from ra to rb + offset in d_MEM
                     ra = self._decoded.ra
                     rb = self._decoded.rb
-                    offset = self.sext(value = self._decoded.imm)
-                    addr = self._regs.execute(ra=rb) + offset
+                    addr = self._decoded.addr
+                    print(addr)
+                    offset = self.sext(value=addr, bits=6)
+                    addr, _ = self._regs.execute(ra=rb)
+                    addr += offset                    
                     data, _ = self._regs.execute(ra=ra)
-                    self._d_mem.write(addr=addr, value=data) 
+                    self._d_mem.write_enable(True)
+                    self._d_mem.write(addr=addr, value=data)  #should automatically reset write enable
+                    print(self._d_mem.read(addr=5))
                 case "ADDI":
                     self._alu.set_op("ADD")
                     ra = self._decoded.ra
                     rd = self._decoded.rd
-                    op_b = self._decoded.imm
+                    op_b = self.sext(self._decoded.imm, 6)
                     op_a, _ = self._regs.execute(ra=ra)
                     result = self._alu.execute(op_a, op_b)
                     self._regs.execute(rd=rd, data = result, write_enable=True)
@@ -113,7 +118,7 @@ class Cpu:
                     rd = self._decoded.rd   #destinitaion
                     op_a, op_b = self._regs.execute(ra=ra, rb=rb)
                     result = self._alu.execute(op_a, op_b)
-                    self.regs.execute(rd=rd, data=result, write_enable=True)
+                    self._regs.execute(rd=rd, data=result, write_enable=True)
                 case "SUB":
                     self._alu.set_op("SUB")
 
@@ -160,7 +165,7 @@ class Cpu:
                     rd = self._decoded.rd
                     ra = self._decoded.ra
                     rb = self._decoded.rb
-                    
+
                     op_a, op_b = self._regs.execute(ra=ra, rb=rb)
                     result = self._alu.execute(op_a, op_b)
                     self._regs.execute(rd=rd, data=result, write_enable=True)
@@ -169,13 +174,22 @@ class Cpu:
                         offset = self.sext(self._decoded.imm, 8)
                         self._pc += offset  # take branch
                 case "BNE":
-                    pass  # complete implementation here
+                    # branch if not equal
+                    if not self._alu.zero:
+                        offset = self.sext(self._decoded.imm, 8)
+                        self._pc += offset
                 case "BLT":
-                    pass  # complete implementation here
+                    # branch if less than; if negative flag is set
+                    if self._alu.negative:
+                        offset = self.sext(self._decoded.imm, 8)
+                        self._pc += offset
                 case "BGE":
-                    pass  # complete implementation here
+                    if not self._alu.negative:
+                        offset = self.sext(self._decoded.imm, 8)
+                        self._pc += offset
                 case "B":
-                    pass  # complete implementation here
+                    offset = self.sext(self._decoded.imm, 8)
+                    self._pc += offset
                 case "CALL":
                     self._sp -= 1  # grow stack downward
                     # PC is incremented immediately upon fetch so already
@@ -187,12 +201,17 @@ class Cpu:
                     offset = self._decoded.imm
                     self._pc += self.sext(offset, 8)  # jump to target
                 case "RET":
+                    if self._sp == STACK_TOP:
+                        raise RuntimeError("Stack underflow")
                     # Get return address from memory via SP
+                    ret_addr = self._d_mem.read(self._sp)
                     # Increment SP
+                    self._sp += 1
                     # Update PC
-                    pass  # complete implementation here
+                    self._pc = ret_addr
+                    
                 case "HALT":
-                    pass  # complete implementation here
+                    self._halt = True
                 case _:  # default
                     raise ValueError(
                         "Unknown mnemonic: " + str(self._decoded) + "\n" + str(self._ir)
