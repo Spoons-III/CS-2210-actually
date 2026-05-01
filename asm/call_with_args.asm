@@ -15,11 +15,12 @@
     HALT
 
 MAX:
-    ; Add appropriate comparison here
+    SUB R4, R1, R2        ; Add appropriate comparison here
     BGE   A_GE_B          ; if a >= b, pick a
+    BLT   B_LT_A
 B_LT_A:
-    ; Add appropriate MOV here
+    MOV R3, R2
     RET
 A_GE_B:
-    ; Add appropriate MOV here
+    MOV R3, R1            ; Add appropriate MOV here
     RET
