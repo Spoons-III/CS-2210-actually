@@ -11,11 +11,13 @@
     LOAD R3, #0           ; counter = 0
     LOAD R4, #16          ; limit = 16
     LOAD R5, #0x1         ; LSB mask 
-    LOAD R6, ?            ; not sure what shift control should be
+    LOAD R6, #1           ; shift control (right)
 LOOP:
     ; complete loop
     AND R1, R5
-    INC R3
+    ADD R3, R3, #1
+    SHFT R1, R4, R6
+    SUB R7, R4, R3
     BLT   LOOP            ; if counter < 16, continue
 DONE:
     HALT
