@@ -14,8 +14,8 @@
     LOAD R6, #1           ; shift control (right)
 LOOP:
     ; complete loop
-    AND R1, R5
-    ADD R3, R3, #1
+    AND R7, R1, R5
+    ADD R3, R3, R7
     SHFT R1, R4, R6
     SUB R7, R4, R3
     BLT   LOOP            ; if counter < 16, continue
