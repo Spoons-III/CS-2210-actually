@@ -12,9 +12,11 @@
     MOV   R4, R1          ; remainder = a
 LOOP:
     ; complete the loop here
-    SUB R1, R2
-    INC R3
-    LOADI R4, R1
+    SUB R5, R1, R2
+    BLT DONE
+    SUB R1, R1, R2
+    ADDI R3, R3, #1
+    MOV R4, R1
     B     LOOP
 DONE:
     HALT
