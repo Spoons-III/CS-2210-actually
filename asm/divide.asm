@@ -12,6 +12,9 @@
     MOV   R4, R1          ; remainder = a
 LOOP:
     ; complete the loop here
+    SUB R1, R2
+    INC R3
+    LOADI R4, R1
     B     LOOP
 DONE:
     HALT

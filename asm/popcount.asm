@@ -8,8 +8,14 @@
     LOADI R1, #0x0F       ; test value (4 set bits)
     LOADI R2, #0          ; count = 0
     ; complete the problem setup here
+    LOAD R3, #0           ; counter = 0
+    LOAD R4, #16          ; limit = 16
+    LOAD R5, #0x1         ; LSB mask 
+    LOAD R6, ?            ; not sure what shift control should be
 LOOP:
     ; complete loop
+    AND R1, R5
+    INC R3
     BLT   LOOP            ; if counter < 16, continue
 DONE:
     HALT
