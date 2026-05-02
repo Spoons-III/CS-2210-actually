@@ -11,13 +11,15 @@
     LOADI R3, #0           ; counter = 0
     LOADI R4, #16          ; limit = 16
     LOADI R5, #0x1         ; LSB mask 
-    LOADI R6, #1           ; shift control (right)
+    LOADI R6, #0x01           ; shift control (right)
+    LUI R6, #0x80
 LOOP:
     ; complete loop
     AND R7, R1, R5
-    ADD R3, R3, R7
-    SHFT R1, R4, R6
-    SUB R7, R4, R3
+    ADD R2, R2, R7
+    ADDI R3, R3, #1
+    SHFT R1, R1, R6
+    SUB R7, R3, R4
     BLT   LOOP             ; if counter < 16, continue
 DONE:
     HALT
